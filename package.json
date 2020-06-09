@@ -1,0 +1,22 @@
+{
+  "name": "subtitle-checker",
+  "version": "1.0.0",
+  "description": "A tool to check various properties of given subtitles.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jansipos/subtitle-checker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jansipos/subtitle-checker/issues"
+  },
+  "homepage": "https://github.com/jansipos/subtitle-checker#readme",
+  "dependencies": {
+    "parse-srt": "^1.0.0-alpha"
+  }
+}
