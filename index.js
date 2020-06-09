@@ -21,6 +21,7 @@ let lastSubEnd = 0
 const allSubs = []
 const gapsBetweenSubs = []
 
+const subsOverOptimalCps = []
 const subsUnderMinDuration = []
 const maxDurationViolations = []
 const maxCpsViolations = []
@@ -68,6 +69,9 @@ jsonSubs.map(sub => {
   if (cps >= 16) {
     maxCpsViolations.push(currSub)
   }
+  if (cps >= 14 && cps < 16) {
+    subsOverOptimalCps.push(currSub)
+  }
   if (timeToPrevSub < 80) {
     minGapViolations.push(currSub)
   }
@@ -102,9 +106,11 @@ weightedGaps = bucketA * 6 + bucketB * 5 + bucketC * 4 + bucketD * 3 + bucketE *
 subGapDifficulty = weightedGaps / mediaDuration
 
 const minDurationViolations = subsUnderMinDuration.filter(sub => sub.over20Chars)
+const nonOptimalCpsPercentage = ((subsOverOptimalCps.length / allSubs.length) * 100).toFixed(2)
 
 console.log('MIN DURATION VIOLATIONS\n', minDurationViolations)
 console.log('MAX DURATION VIOLATIONS\n', maxDurationViolations)
 console.log('MAX CPS VIOLATIONS\n', maxCpsViolations)
 console.log('MIN GAP VIOLATIONS\n', minGapViolations)
 console.log('LINE LENGTH VIOLATIONS\n', lineLengthViolations)
+console.log(`Subtitles over optimal CPS (${nonOptimalCpsPercentage}%)\n`, subsOverOptimalCps)
