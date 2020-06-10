@@ -86,7 +86,7 @@
     No errors. Nice.
     {{/hasErrors}}
     
-    <div class="subheading error {{^minDurationViolations}}empty{{/minDurationViolations}}">Subtitles below minimum duration (2 seconds): {{ minDurationViolations.length }}<span class="disclosure">&#9660;</span></div>
+    <div class="subheading error {{^minDurationViolations}}empty{{/minDurationViolations}}">Shorter than 2 seconds and longer than 20 characters: {{ minDurationViolations.length }}<span class="disclosure">&#9660;</span></div>
     <div class="subresult-box">
       {{#minDurationViolations}}
       <div class="subtitle-number">{{{ id }}}</div>
@@ -94,7 +94,7 @@
       {{/minDurationViolations}}
     </div>
     
-    <div class="subheading error {{^maxDurationViolations}}empty{{/maxDurationViolations}}">Subtitles above maximum duration (7 seconds): {{ maxDurationViolations.length }}<span class="disclosure">&#9660;</span></div>
+    <div class="subheading error {{^maxDurationViolations}}empty{{/maxDurationViolations}}">Longer than 7 seconds: {{ maxDurationViolations.length }}<span class="disclosure">&#9660;</span></div>
     <div class="subresult-box">
       {{#maxDurationViolations}}
       <div class="subtitle-number">{{{ id }}}</div>
@@ -102,7 +102,7 @@
       {{/maxDurationViolations}}
     </div>
     
-    <div class="subheading error {{^maxCpsViolations}}empty{{/maxCpsViolations}}">Subtitles above maximum CPS (16 cps): {{ maxCpsViolations.length }}<span class="disclosure">&#9660;</span></div>
+    <div class="subheading error {{^maxCpsViolations}}empty{{/maxCpsViolations}}">Above 16.00 CPS: {{ maxCpsViolations.length }}<span class="disclosure">&#9660;</span></div>
     <div class="subresult-box">
       {{#maxCpsViolations}}
       <div class="subtitle-number">{{{ id }}}</div>
@@ -110,7 +110,7 @@
       {{/maxCpsViolations}}
     </div>
     
-    <div class="subheading error {{^minGapViolations}}empty{{/minGapViolations}}">Subtitles below minimum gap (2 frames / 80 milliseconds): {{ minGapViolations.length }}<span class="disclosure">&#9660;</span></div>
+    <div class="subheading error {{^minGapViolations}}empty{{/minGapViolations}}">Gap shorter than 2 frames (80 milliseconds): {{ minGapViolations.length }}<span class="disclosure">&#9660;</span></div>
     <div class="subresult-box">
       {{#minGapViolations}}
       <div class="subtitle-number">{{{ id }}}</div>
@@ -118,7 +118,7 @@
       {{/minGapViolations}}
     </div>
     
-    <div class="subheading error {{^lineLengthViolations}}empty{{/lineLengthViolations}}">Subtitles above maximum length (35 characters per line): {{ lineLengthViolations.length }}<span class="disclosure">&#9660;</span></div>
+    <div class="subheading error {{^lineLengthViolations}}empty{{/lineLengthViolations}}">Longer than 35 characters per line: {{ lineLengthViolations.length }}<span class="disclosure">&#9660;</span></div>
     <div class="subresult-box">
       {{#lineLengthViolations}}
       <div class="subtitle-number">{{{ id }}}</div>
@@ -131,7 +131,7 @@
     No warnings. Great job!
     {{/hasWarnings}}
     
-    <div class="subheading warning {{^subsOverOptimalCps}}empty{{/subsOverOptimalCps}}">Subtitles with non-optimal cps (14-16 cps): {{ subsOverOptimalCps.length }} ({{ nonOptimalCpsPercentage }}%)<span class="disclosure">&#9660;</span></div>
+    <div class="subheading warning {{^subsOverOptimalCps}}empty{{/subsOverOptimalCps}}">CPS between 14.00 and 16.00: {{ subsOverOptimalCps.length }} ({{ nonOptimalCpsPercentage }}%)<span class="disclosure">&#9660;</span></div>
     <div class="subresult-box">
       {{#subsOverOptimalCps}}
       <div class="subtitle-number">{{{ id }}}</div>
@@ -156,7 +156,6 @@
         
         rendered = Mustache.render(template, result);
         document.getElementById('result').innerHTML = rendered;
-        console.log(result)
         
         const subheadings = document.getElementsByClassName('subheading')
         for (let i = 0; i < subheadings.length; i++) {
