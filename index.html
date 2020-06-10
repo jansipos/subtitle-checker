@@ -34,7 +34,7 @@
       display: none;
     }
     .error {
-      color: #e74c3c;
+      color: #e74c3c !important;
     }
     .warning {
       color: #f39c12;
@@ -46,13 +46,14 @@
       margin-bottom: 10px;
     }
     .subtitle-number {
+      margin-bottom: 5px;
       font-weight: bold;
     }
     .subheading {
       padding-top: 20px;
-      font-weight: bold;
       cursor: pointer;
-      padding-bottom: 10px;
+      padding-bottom: 20px;
+      font-size: 18px;
     }
     .empty {
       cursor: initial;
@@ -72,7 +73,14 @@
     .subheading.open+.subresult-box {
       display: block;
     }
-    
+    .subtitle-info {
+      margin-bottom: 40px ;
+    }
+    .error-info {
+      display: inline-block;
+      padding: 3px 5px;
+      background-color: #c5cece;
+    }
     
   </style>
 </head>
@@ -87,53 +95,84 @@
     {{/hasErrors}}
     
     <div class="subheading error {{^minDurationViolations}}empty{{/minDurationViolations}}">
-    Shorter than 2 seconds and longer than 20 characters: {{ minDurationViolations.length }}<span class="disclosure">&#9660;</span>
+    Shorter than 2 seconds and longer than 20 characters: <b>{{ minDurationViolations.length }}</b><span class="disclosure">&#9660;</span>
     </div>
     <div class="subresult-box">
       {{#minDurationViolations}}
-      <div class="subtitle-number">{{{ id }}}</div>
-      <div class="subtitle-text">{{{ text }}}</div>
+      <div class="subtitle-info">
+        <div class="subtitle-number">{{{ id }}}</div>
+        <div class="subtitle-text">{{{ text }}}</div>
+        <div class="error-info">{{ duration }} ms</div>
+        <div class="error-info">{{ length }} characters</div>
+      </div>
       {{/minDurationViolations}}
     </div>
     
     <div class="subheading error {{^maxDurationViolations}}empty{{/maxDurationViolations}}">
-    Longer than 7 seconds: {{ maxDurationViolations.length }}<span class="disclosure">&#9660;</span>
+    Longer than 7 seconds: <b>{{ maxDurationViolations.length }}</b><span class="disclosure">&#9660;</span>
     </div>
     <div class="subresult-box">
       {{#maxDurationViolations}}
-      <div class="subtitle-number">{{{ id }}}</div>
-      <div class="subtitle-text">{{{ text }}}</div>
+      <div class="subtitle-info">
+        <div class="subtitle-number">{{{ id }}}</div>
+        <div class="subtitle-text">{{{ text }}}</div>
+        <div class="error-info">{{ duration }} ms</div>
+      </div>
       {{/maxDurationViolations}}
     </div>
     
     <div class="subheading error {{^maxCpsViolations}}empty{{/maxCpsViolations}}">
-    Above 16.00 CPS: {{ maxCpsViolations.length }}<span class="disclosure">&#9660;</span>
+    Above 16.00 cps: <b>{{ maxCpsViolations.length }}</b><span class="disclosure">&#9660;</span>
     </div>
     <div class="subresult-box">
       {{#maxCpsViolations}}
-      <div class="subtitle-number">{{{ id }}}</div>
-      <div class="subtitle-text">{{{ text }}}</div>
+      <div class="subtitle-info">
+        <div class="subtitle-number">{{{ id }}}</div>
+        <div class="subtitle-text">{{{ text }}}</div>
+        <div class="error-info">{{ cps }} cps</div>
+      </div>
       {{/maxCpsViolations}}
     </div>
     
     <div class="subheading error {{^minGapViolations}}empty{{/minGapViolations}}">
-    Gap shorter than 2 frames (80 milliseconds): {{ minGapViolations.length }}<span class="disclosure">&#9660;</span>
+    Gap shorter than 2 frames (80 milliseconds): <b>{{ minGapViolations.length }}</b><span class="disclosure">&#9660;</span>
     </div>
     <div class="subresult-box">
       {{#minGapViolations}}
-      <div class="subtitle-number">{{{ id }}}</div>
-      <div class="subtitle-text">{{{ text }}}</div>
+      <div class="subtitle-info">
+        <div class="subtitle-number">{{{ id }}}</div>
+        <div class="subtitle-text">{{{ text }}}</div>
+        <div class="error-info">{{ gapToPrevious }} ms</div>
+      </div>
       {{/minGapViolations}}
     </div>
     
     <div class="subheading error {{^lineLengthViolations}}empty{{/lineLengthViolations}}">
-    Longer than 35 characters per line: {{ lineLengthViolations.length }}<span class="disclosure">&#9660;</span>
+    Longer than 35 characters per line: <b>{{ lineLengthViolations.length }}</b><span class="disclosure">&#9660;</span>
     </div>
     <div class="subresult-box">
       {{#lineLengthViolations}}
-      <div class="subtitle-number">{{{ id }}}</div>
-      <div class="subtitle-text">{{{ text }}}</div>
+      <div class="subtitle-info">
+        <div class="subtitle-number">{{{ id }}}</div>
+        <div class="subtitle-text">{{{ text }}}</div>
+        <div class="error-info">{{ lineOneLength }} characters</div>
+        {{#lineTwoLength}}<div class="error-info">{{ lineTwoLength }} characters</div>{{/lineTwoLength}}
+      </div>
       {{/lineLengthViolations}}
+    </div>
+    
+    <div class="subheading error {{^allCapsLineLengthViolations}}empty{{/allCapsLineLengthViolations}}">
+    All caps longer than 33 characters per line: <b>{{ allCapsLineLengthViolations.length }}</b><span class="disclosure">&#9660;</span>
+    </div>
+    <div class="subresult-box">
+      {{#allCapsLineLengthViolations}}
+      <div class="subtitle-info">
+        <div class="subtitle-number">{{{ id }}}</div>
+        <div class="subtitle-text">{{{ text }}}</div>
+        <div class="error-info">{{ lineOneLength }} characters</div>
+        {{#lineTwoLength}}<div class="error-info">{{ lineTwoLength }} characters</div>{{/lineTwoLength}}
+      </div>
+      {{/allCapsLineLengthViolations}}
     </div>
     
     <h2>Warnings</h2>
@@ -141,13 +180,16 @@
     No warnings. Great job!
     {{/hasWarnings}}
     
-    <div class="subheading warning {{^subsOverOptimalCps}}empty{{/subsOverOptimalCps}}">
-    CPS between 14.00 and 16.00: {{ subsOverOptimalCps.length }} ({{ nonOptimalCpsPercentage }}%)<span class="disclosure">&#9660;</span>
+    <div class="subheading warning {{^subsOverOptimalCps}}empty{{/subsOverOptimalCps}} {{#hasNonOptimalCpsError}}error{{/hasNonOptimalCpsError}}">
+    Cps between 14.00 and 16.00: <b>{{ subsOverOptimalCps.length }} ({{ nonOptimalCpsPercentage }}%)</b><span class="disclosure">&#9660;</span>
     </div>
     <div class="subresult-box">
       {{#subsOverOptimalCps}}
-      <div class="subtitle-number">{{{ id }}}</div>
-      <div class="subtitle-text">{{{ text }}}</div>
+      <div class="subtitle-info">
+        <div class="subtitle-number">{{{ id }}}</div>
+        <div class="subtitle-text">{{{ text }}}</div>
+        <div class="error-info">{{ cps }} cps</div>
+      </div>
       {{/subsOverOptimalCps}}
     </div>
   </script>
@@ -230,6 +272,7 @@
       const maxCpsViolations = []
       const minGapViolations = []
       const lineLengthViolations = []
+      const allCapsLineLengthViolations = []
       
       // 80-999 ms
       let bucketA = 0
@@ -262,6 +305,10 @@
           gapToPrevious: timeToPrevSub
         }
         
+        const lines = sub.text.replace(/<\/?i>/g, '').split(/<br\s?\/>/)
+        const L1 = lines[0]
+        const L2 = lines[1] ? lines[1] : ''
+
         // violations
         if (duration < 2000) {
           subsUnderMinDuration.push(currSub)
@@ -279,11 +326,20 @@
           minGapViolations.push(currSub)
         }
         if (text.length > 35) {
-          const lines = sub.text.replace(/<\/?i>/g, '').split(/<br\s?\/>/)
-          
-          if (lines[0].length > 35 || lines[1].length > 35)
+
+          if (L1.length > 35 || L2.length > 35)
           {
+            currSub.lineOneLength = L1.length
+            currSub.lineTwoLength = L2 ? L2.length : 0
             lineLengthViolations.push(currSub)
+          }
+        }
+        if (text.length > 33) {
+
+          if (L1.length > 33 && L1 === L1.toUpperCase() || L2.length > 33 && L2 === L2.toUpperCase()) {
+            currSub.lineOneLength = L1.length
+            currSub.lineTwoLength = L2 ? L2.length : 0
+            allCapsLineLengthViolations.push(currSub)
           }
         }
         
@@ -310,6 +366,7 @@
       
       const minDurationViolations = subsUnderMinDuration.filter(sub => sub.over20Chars)
       const nonOptimalCpsPercentage = ((subsOverOptimalCps.length / allSubs.length) * 100).toFixed(2)
+      const hasNonOptimalCpsError = nonOptimalCpsPercentage > 5
 
       const hasErrors = !!(minDurationViolations.length + maxDurationViolations.length + maxCpsViolations.length + minGapViolations.length + lineLengthViolations.length)
       const hasWarnings = !!subsOverOptimalCps.length
@@ -320,17 +377,13 @@
         maxCpsViolations,
         minGapViolations,
         lineLengthViolations,
+        allCapsLineLengthViolations,
         subsOverOptimalCps,
         nonOptimalCpsPercentage,
         hasErrors,
-        hasWarnings
+        hasWarnings,
+        hasNonOptimalCpsError
       }
-      console.log('MIN DURATION VIOLATIONS\n', minDurationViolations)
-      console.log('MAX DURATION VIOLATIONS\n', maxDurationViolations)
-      console.log('MAX CPS VIOLATIONS\n', maxCpsViolations)
-      console.log('MIN GAP VIOLATIONS\n', minGapViolations)
-      console.log('LINE LENGTH VIOLATIONS\n', lineLengthViolations)
-      console.log(`Subtitles over optimal CPS (${nonOptimalCpsPercentage}%)\n`, subsOverOptimalCps)
     }
     
   </script>
