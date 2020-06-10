@@ -5,24 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Subtitle Checker</title>
   <style>
+    html {
+      margin: 0;
+      padding: 0;
+    }
     body {
+      margin: 0;
+      padding: 0;
       font-family: Arial;
       background-color: #ecf0f1;
       color: #2c3e50;
-      margin-left: 40px;
+      width: 100%;
+    }
+    .wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 80%;
+      max-width: 960px;
+      margin: 10px auto;
     }
     #dropzone {
-      margin: 20px;
-      background-color: #1abc9c;
-      border-radius: 10vh;
-      width: 20vh;
-      height: 20vh;
-      color: white;
-      text-align: center;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      padding: 2.5vh;
-      line-height: 1.5rem;
+      justify-content: center;
+      margin-top: 50px;
+      background-color: #1abc9c;
+      border-radius: 100px;
+      width: 100px;
+      height: 100px;
+      color: white;
+      padding: 50px;
+      font-size: 30px;
+      line-height: 40px;
+      letter-spacing: 2px;
     }
     #result {
       margin-bottom: 20vh;
@@ -85,8 +102,13 @@
   </style>
 </head>
 <body>
-  <div id="dropzone">DROP IT LIKE IT'S HOT</div>
-  <div id="result"></div>
+  <div class="wrapper">
+    <h1>The All Powerful Subtitle Checker</h1>
+    <div id="dropzone">
+    <div>DROP</div><div>SRT</div><div>FILE</div>
+    </div>
+    <div id="result"></div>
+  </div>
   
   <script id="template" type="x-tmpl-mustache">
     <h2>Errors</h2>
