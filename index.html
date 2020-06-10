@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subtitle Checker</title>
+  <style>
+    body {
+      font-family: Arial;
+      background-color: #ecf0f1;
+      color: #2c3e50;
+      margin-left: 40px;
+    }
+    #dropzone {
+      margin: 20px;
+      background-color: #1abc9c;
+      border-radius: 10vh;
+      width: 20vh;
+      height: 20vh;
+      color: white;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      padding: 2.5vh;
+      line-height: 1.5rem;
+    }
+    #result {
+      margin-bottom: 20vh;
+    }
+    h2 {
+      margin-top: 40px;
+    }
+    .empty>.disclosure {
+      display: none;
+    }
+    .error {
+      color: #e74c3c;
+    }
+    .warning {
+      color: #f39c12;
+    }
+    .no-content {
+      margin: 20px 0;
+    }
+    .subtitle-text {
+      margin-bottom: 10px;
+    }
+    .subtitle-number {
+      font-weight: bold;
+    }
+    .subheading {
+      padding-top: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      padding-bottom: 10px;
+    }
+    .empty {
+      cursor: initial;
+      display: none;
+    }
+    .disclosure {
+      display: inline-block;
+      transition: all 80ms;
+      padding-left: 10px; 
+    }
+    .subheading.open>.disclosure {
+      transform: rotate(180deg) translate(-10px);
+    }
+    .subheading+.subresult-box {
+      display: none;
+    }
+    .subheading.open+.subresult-box {
+      display: block;
+    }
+    
+    
+  </style>
+</head>
+<body>
+  <div id="dropzone">DROP IT LIKE IT'S HOT</div>
+  <div id="result"></div>
+  
+  <script id="template" type="x-tmpl-mustache">
+    <h2>Errors</h2>
+    {{^hasErrors}}
+    No errors. Nice.
+    {{/hasErrors}}
+    
+    <div class="subheading error {{^minDurationViolations}}empty{{/minDurationViolations}}">Subtitles below minimum duration (2 seconds): {{ minDurationViolations.length }}<span class="disclosure">&#9660;</span></div>
+    <div class="subresult-box">
+      {{#minDurationViolations}}
+      <div class="subtitle-number">{{{ id }}}</div>
+      <div class="subtitle-text">{{{ text }}}</div>
+      {{/minDurationViolations}}
+    </div>
+    
+    <div class="subheading error {{^maxDurationViolations}}empty{{/maxDurationViolations}}">Subtitles above maximum duration (7 seconds): {{ maxDurationViolations.length }}<span class="disclosure">&#9660;</span></div>
+    <div class="subresult-box">
+      {{#maxDurationViolations}}
+      <div class="subtitle-number">{{{ id }}}</div>
+      <div class="subtitle-text">{{{ text }}}</div>
+      {{/maxDurationViolations}}
+    </div>
+    
+    <div class="subheading error {{^maxCpsViolations}}empty{{/maxCpsViolations}}">Subtitles above maximum CPS (16 cps): {{ maxCpsViolations.length }}<span class="disclosure">&#9660;</span></div>
+    <div class="subresult-box">
+      {{#maxCpsViolations}}
+      <div class="subtitle-number">{{{ id }}}</div>
+      <div class="subtitle-text">{{{ text }}}</div>
+      {{/maxCpsViolations}}
+    </div>
+    
+    <div class="subheading error {{^minGapViolations}}empty{{/minGapViolations}}">Subtitles below minimum gap (2 frames / 80 milliseconds): {{ minGapViolations.length }}<span class="disclosure">&#9660;</span></div>
+    <div class="subresult-box">
+      {{#minGapViolations}}
+      <div class="subtitle-number">{{{ id }}}</div>
+      <div class="subtitle-text">{{{ text }}}</div>
+      {{/minGapViolations}}
+    </div>
+    
+    <div class="subheading error {{^lineLengthViolations}}empty{{/lineLengthViolations}}">Subtitles above maximum length (35 characters per line): {{ lineLengthViolations.length }}<span class="disclosure">&#9660;</span></div>
+    <div class="subresult-box">
+      {{#lineLengthViolations}}
+      <div class="subtitle-number">{{{ id }}}</div>
+      <div class="subtitle-text">{{{ text }}}</div>
+      {{/lineLengthViolations}}
+    </div>
+    
+    <h2>Warnings</h2>
+    {{^hasWarnings}}
+    No warnings. Great job!
+    {{/hasWarnings}}
+    
+    <div class="subheading warning {{^subsOverOptimalCps}}empty{{/subsOverOptimalCps}}">Subtitles with non-optimal cps (14-16 cps): {{ subsOverOptimalCps.length }} ({{ nonOptimalCpsPercentage }}%)<span class="disclosure">&#9660;</span></div>
+    <div class="subresult-box">
+      {{#subsOverOptimalCps}}
+      <div class="subtitle-number">{{{ id }}}</div>
+      <div class="subtitle-text">{{{ text }}}</div>
+      {{/subsOverOptimalCps}}
+    </div>
+  </script>
+  
+  <script src="js/parse-srt.min.js"></script>
+  <script src="js/mustache.min.js"></script>
+  <script>
+    let globalSubs = null
+    const template = document.getElementById('template').innerHTML
+    
+    const handleFileDrop = function (files) {
+      const reader = new FileReader()
+      reader.onload = function(){
+        const subs = reader.result
+        globalSubs = subs
+        
+        const result = checkSubtitles(subs)
+        
+        rendered = Mustache.render(template, result);
+        document.getElementById('result').innerHTML = rendered;
+        console.log(result)
+        
+        const subheadings = document.getElementsByClassName('subheading')
+        for (let i = 0; i < subheadings.length; i++) {
+          
+          subheadings[i].addEventListener('click', function (e) {
+            
+            if (e.target != subheadings[i]) {
+              e.target.parentNode.classList.toggle('open')
+              return
+            }
+            
+            e.target.classList.toggle('open')
+          })
+          
+        }
+      }
+      reader.readAsText(files[0])
+    }
+    
+    let dropzone;
+    
+    function dragenter(e) {
+      e.stopPropagation()
+      e.preventDefault()
+    }
+    
+    function dragover(e) {
+      e.stopPropagation()
+      e.preventDefault()
+    }
+    
+    function drop(e) {
+      e.stopPropagation()
+      e.preventDefault()
+      
+      const dt = e.dataTransfer
+      const files = dt.files
+      
+      handleFileDrop(files)
+    }
+    
+    dropzone = document.getElementById("dropzone")
+    dropzone.addEventListener("dragenter", dragenter, false)
+    dropzone.addEventListener("dragover", dragover, false)
+    dropzone.addEventListener("drop", drop, false)
+    
+    function checkSubtitles(subs) {
+      
+      mediaDuration = 0
+      const jsonSubs = parseSRT(subs)
+      
+      let lastSubEnd = 0
+      
+      const allSubs = []
+      const gapsBetweenSubs = []
+      
+      const subsOverOptimalCps = []
+      const subsUnderMinDuration = []
+      const maxDurationViolations = []
+      const maxCpsViolations = []
+      const minGapViolations = []
+      const lineLengthViolations = []
+      
+      // 80-999 ms
+      let bucketA = 0
+      // 1000-2999 ms
+      let bucketB = 0
+      // 3000-4999 ms
+      let bucketC = 0
+      // 5000-9999 ms
+      let bucketD = 0
+      // 10000-29999 ms
+      let bucketE = 0
+      // 30000+ ms
+      let bucketF = 0
+      
+      jsonSubs.map(sub => {
+        // object properties
+        const timeToPrevSub = Math.ceil(sub.start * 1000 - lastSubEnd * 1000)
+        const duration = Math.ceil(sub.end * 1000 - sub.start * 1000)
+        const text = sub.text.replace(/<\/?i>|<br\s?\/>/g, '')
+        const length = text.length
+        const cps = ((length/duration) * 1000).toFixed(2)
+        
+        const currSub = {
+          id: sub.id,
+          duration,
+          cps,
+          length,
+          over20Chars: length > 20,
+          text: sub.text,
+          gapToPrevious: timeToPrevSub
+        }
+        
+        // violations
+        if (duration < 2000) {
+          subsUnderMinDuration.push(currSub)
+        }
+        if (duration > 7000) {
+          maxDurationViolations.push(currSub)
+        }
+        if (cps >= 16) {
+          maxCpsViolations.push(currSub)
+        }
+        if (cps >= 14 && cps < 16) {
+          subsOverOptimalCps.push(currSub)
+        }
+        if (timeToPrevSub < 80) {
+          minGapViolations.push(currSub)
+        }
+        if (text.length > 35) {
+          const lines = sub.text.replace(/<\/?i>/g, '').split(/<br\s?\/>/)
+          
+          if (lines[0].length > 35 || lines[1].length > 35)
+          {
+            lineLengthViolations.push(currSub)
+          }
+        }
+        
+        // gap buckets
+        if (timeToPrevSub <= 999) { bucketA++ }
+        if (timeToPrevSub >= 1000 && timeToPrevSub <= 2999) { bucketB++ }
+        if (timeToPrevSub >= 3000 && timeToPrevSub <= 4999) { bucketC++ }
+        if (timeToPrevSub >= 5000 && timeToPrevSub <= 9999) { bucketD++ }
+        if (timeToPrevSub >= 10000 && timeToPrevSub <= 29999) { bucketE++ }
+        if (timeToPrevSub >= 30000) { bucketF++ }
+        
+        allSubs.push(currSub)
+        
+        gapsBetweenSubs.push(timeToPrevSub)
+        lastSubEnd = sub.end
+      })
+      
+      const sortedGaps = gapsBetweenSubs.sort(function(a, b) {
+        return a > b ? 1 : -1
+      })
+      
+      weightedGaps = bucketA * 6 + bucketB * 5 + bucketC * 4 + bucketD * 3 + bucketE * 2 + bucketF * 1
+      subGapDifficulty = weightedGaps / mediaDuration
+      
+      const minDurationViolations = subsUnderMinDuration.filter(sub => sub.over20Chars)
+      const nonOptimalCpsPercentage = ((subsOverOptimalCps.length / allSubs.length) * 100).toFixed(2)
+
+      const hasErrors = !!(minDurationViolations.length + maxDurationViolations.length + maxCpsViolations.length + minGapViolations.length + lineLengthViolations.length)
+      const hasWarnings = !!subsOverOptimalCps.length
+      
+      return {
+        minDurationViolations,
+        maxDurationViolations,
+        maxCpsViolations,
+        minGapViolations,
+        lineLengthViolations,
+        subsOverOptimalCps,
+        nonOptimalCpsPercentage,
+        hasErrors,
+        hasWarnings
+      }
+      console.log('MIN DURATION VIOLATIONS\n', minDurationViolations)
+      console.log('MAX DURATION VIOLATIONS\n', maxDurationViolations)
+      console.log('MAX CPS VIOLATIONS\n', maxCpsViolations)
+      console.log('MIN GAP VIOLATIONS\n', minGapViolations)
+      console.log('LINE LENGTH VIOLATIONS\n', lineLengthViolations)
+      console.log(`Subtitles over optimal CPS (${nonOptimalCpsPercentage}%)\n`, subsOverOptimalCps)
+    }
+    
+  </script>
+</body>
+</html>
