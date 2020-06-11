@@ -18,5 +18,13 @@
   "homepage": "https://github.com/jansipos/subtitle-checker#readme",
   "dependencies": {
     "parse-srt": "^1.0.0-alpha"
+  },
+  "devDependencies": {
+    "del": "^5.1.0",
+    "gulp": "^4.0.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-htmlmin": "^5.0.1",
+    "gulp-replace": "^1.0.0",
+    "gulp-uglify-es": "^2.0.0"
   }
 }
